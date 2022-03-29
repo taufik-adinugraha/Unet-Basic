@@ -50,8 +50,9 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
 # inheritance for training process plot 
 class evaluation_callback(Callback):
 
-    def __init__(self, image_path):
+    def __init__(self, image_path, model):
         self.image_path = image_path
+        self.model = model
 
     def on_train_begin(self, logs=None):
         self.sz = (256,256)
@@ -72,7 +73,7 @@ class evaluation_callback(Callback):
         self.val_acc.append(logs.get('val_mean_iou'))
         self.i += 1
         print(f'i={self.i}')
-        print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('MeanIoU')}, val_MeanIoU={logs.get('val_MeanIoU')}")
+        print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('mean_io_u')}, val_MeanIoU={logs.get('val_mean_io_u')}")
         
         # test image
         raw = Image.open(f'images/{self.image_path}')
@@ -84,7 +85,7 @@ class evaluation_callback(Callback):
           raw = raw[:,:,0:3]
         
         #predict the mask 
-        pred = model.predict(np.expand_dims(raw, 0))
+        pred = self.model.predict(np.expand_dims(raw, 0))
         
         #mask post-processing 
         msk  = pred.squeeze()
