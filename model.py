@@ -1,69 +1,77 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, Concatenate, BatchNormalization, UpSampling2D
-from tensorflow.keras.layers import LeakyReLU, Dropout, Activation
-from tensorflow.keras.optimizers import Adam, SGD
-from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
-from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, Concatenate
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.utils import plot_model
+from tensorflow.keras.metrics import IoU
 from tools import *
 
 
-def mean_iou(y_true, y_pred):
-    yt0 = y_true[:,:,:,0]
-    yp0 = K.cast(y_pred[:,:,:,0] > 0.5, 'float32')
-    inter = tf.math.count_nonzero(tf.logical_and(tf.equal(yt0, 1), tf.equal(yp0, 1)))
-    union = tf.math.count_nonzero(tf.add(yt0, yp0))
-    iou = tf.where(tf.equal(union, 0), 1., tf.cast(inter/union, 'float32'))
-    return iou
+def callbacks(path):
+  checkpointer = ModelCheckpoint(filepath=f'{path}/unet.h5', verbose=0, save_best_only=True, save_weights_only=True)
+  callbacks = [checkpointer, PlotLearning(), EarlyStopping(patience=3)]
+  return callbacks
 
-def build_callbacks():
-        checkpointer = ModelCheckpoint(filepath='unet.h5', verbose=0, save_best_only=True, save_weights_only=True)
-        callbacks = [checkpointer, PlotLearning()]
-        return callbacks
 
-def unet(sz = (256, 256, 3)):
-  x = Input(sz)
-  inputs = x
-  
-  #down sampling 
-  f = 8
-  layers = []
-  
-  for i in range(0, 6):
-    x = Conv2D(f, 3, activation='relu', padding='same') (x)
-    x = Conv2D(f, 3, activation='relu', padding='same') (x)
-    layers.append(x)
-    x = MaxPooling2D() (x)
-    f = f*2
-  ff2 = 64 
-  
-  #bottleneck 
-  j = len(layers) - 1
-  x = Conv2D(f, 3, activation='relu', padding='same') (x)
-  x = Conv2D(f, 3, activation='relu', padding='same') (x)
-  x = Conv2DTranspose(ff2, 2, strides=(2, 2), padding='same') (x)
-  x = Concatenate(axis=3)([x, layers[j]])
-  j = j -1 
-  
-  #upsampling 
-  for i in range(0, 5):
-    ff2 = ff2//2
-    f = f // 2 
-    x = Conv2D(f, 3, activation='relu', padding='same') (x)
-    x = Conv2D(f, 3, activation='relu', padding='same') (x)
-    x = Conv2DTranspose(ff2, 2, strides=(2, 2), padding='same') (x)
-    x = Concatenate(axis=3)([x, layers[j]])
-    j = j -1 
+def unet(n_classes=1, input_dim=(256, 256, 3)):
+    inputs = Input(input_dim)
+    s = inputs
+
+    #Contraction path
+    c1 = Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(s)
+    c1 = Dropout(0.2)(c1)  # Original 0.1
+    c1 = Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c1)
+    p1 = MaxPooling2D((2, 2))(c1)
     
-  
-  #classification 
-  x = Conv2D(f, 3, activation='relu', padding='same') (x)
-  x = Conv2D(f, 3, activation='relu', padding='same') (x)
-  outputs = Conv2D(1, 1, activation='sigmoid') (x)
-  
-  #model creation 
-  model = Model(inputs=[inputs], outputs=[outputs])
-  model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = [mean_iou])
-  
-  return model
+    c2 = Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p1)
+    c2 = Dropout(0.2)(c2)  # Original 0.1
+    c2 = Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c2)
+    p2 = MaxPooling2D((2, 2))(c2)
+     
+    c3 = Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p2)
+    c3 = Dropout(0.2)(c3)
+    c3 = Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c3)
+    p3 = MaxPooling2D((2, 2))(c3)
+     
+    c4 = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p3)
+    c4 = Dropout(0.2)(c4)
+    c4 = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c4)
+    p4 = MaxPooling2D(pool_size=(2, 2))(c4)
+     
+    c5 = Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p4)
+    c5 = Dropout(0.3)(c5)
+    c5 = Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c5)
+    
+    #Expansive path 
+    u6 = Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')(c5)
+    u6 = concatenate([u6, c4])
+    c6 = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u6)
+    c6 = Dropout(0.2)(c6)
+    c6 = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c6)
+     
+    u7 = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(c6)
+    u7 = concatenate([u7, c3])
+    c7 = Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u7)
+    c7 = Dropout(0.2)(c7)
+    c7 = Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c7)
+     
+    u8 = Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(c7)
+    u8 = concatenate([u8, c2])
+    c8 = Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u8)
+    c8 = Dropout(0.2)(c8)  # Original 0.1
+    c8 = Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c8)
+     
+    u9 = Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same')(c8)
+    u9 = concatenate([u9, c1], axis=3)
+    c9 = Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u9)
+    c9 = Dropout(0.2)(c9)  # Original 0.1
+    c9 = Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c9)
+     
+    outputs = Conv2D(n_classes, (1, 1), activation='softmax')(c9)
+     
+    model = Model(inputs=[inputs], outputs=[outputs])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        
+    return model
