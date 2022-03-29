@@ -48,9 +48,10 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
 
 
 # inheritance for training process plot 
-class PlotLearning(Callback, sz=(256,256)):
+class PlotLearning(Callback):
 
     def on_train_begin(self, logs={}):
+        self.sz = (256,256)
         self.i = 0
         self.x = []
         self.losses = []
@@ -73,7 +74,7 @@ class PlotLearning(Callback, sz=(256,256)):
         #choose a random test image and preprocess
         path = np.random.choice(test_files)
         raw = Image.open(f'images/{path}')
-        raw = np.array(raw.resize(sz))/255.
+        raw = np.array(raw.resize(self.sz))/255.
         raw = raw[:,:,0:3]
         
         #predict the mask 
