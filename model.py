@@ -7,9 +7,9 @@ from tensorflow.keras.metrics import MeanIoU
 from tools import *
 
 
-def callbacks(path):
+def callbacks(path, image_path):
   checkpointer = ModelCheckpoint(filepath=f'{path}/unet.h5', verbose=0, save_best_only=True, save_weights_only=True)
-  callbacks = [checkpointer, PlotLearning(), EarlyStopping(patience=3)]
+  callbacks = [checkpointer, customCallback(image_path), EarlyStopping(patience=3)]
   return callbacks
 
 

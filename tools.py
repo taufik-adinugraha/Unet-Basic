@@ -48,9 +48,13 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
 
 
 # inheritance for training process plot 
-class PlotLearning(Callback):
+class customCallback(Callback):
 
-    def on_train_begin(self, logs={}):
+    def __init__(self, image_path):
+        Num.__init__(self, image_path)
+        self.image_path = image_path
+
+    def on_train_begin(self, logs=None):
         self.sz = (256,256)
         self.i = 0
         self.x = []
@@ -60,7 +64,7 @@ class PlotLearning(Callback):
         self.val_acc = []
         self.logs = []
         
-    def on_epoch_end(self, epoch, logs={}):
+    def on_epoch_end(self, epoch, logs=None):
         self.logs.append(logs)
         self.x.append(self.i)
         self.losses.append(logs.get('loss'))
@@ -71,11 +75,14 @@ class PlotLearning(Callback):
         print(f'i={self.i}')
         print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('MeanIoU')}, val_MeanIoU={logs.get('val_MeanIoU')}")
         
-        #choose a random test image and preprocess
-        path = np.random.choice(test_files)
-        raw = Image.open(f'images/{path}')
+        # test image
+        raw = Image.open(f'images/{self.image_path}')
         raw = np.array(raw.resize(self.sz))/255.
-        raw = raw[:,:,0:3]
+        # check the number of channels because some of the images are RGBA or GRAY
+        if len(raw.shape) == 2:
+          raw = np.stack((raw,)*3, axis=-1)
+        else:
+          raw = raw[:,:,0:3]
         
         #predict the mask 
         pred = model.predict(np.expand_dims(raw, 0))
