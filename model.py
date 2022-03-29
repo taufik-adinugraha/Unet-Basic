@@ -73,3 +73,51 @@ def unet(n_classes=1, input_dim=(256, 256, 3)):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[MeanIoU(num_classes=n_classes+1)])
         
     return model
+
+
+
+def unet1(n_classes=1, input_dim=(256, 256, 3)):
+  x = Input(input_dim)
+  inputs = x
+  
+  #down sampling 
+  f = 8
+  layers = []
+  
+  for i in range(0, 6):
+    x = Conv2D(f, 3, activation='relu', padding='same') (x)
+    x = Conv2D(f, 3, activation='relu', padding='same') (x)
+    layers.append(x)
+    x = MaxPooling2D() (x)
+    f = f*2
+  ff2 = 64 
+  
+  #bottleneck 
+  j = len(layers) - 1
+  x = Conv2D(f, 3, activation='relu', padding='same') (x)
+  x = Conv2D(f, 3, activation='relu', padding='same') (x)
+  x = Conv2DTranspose(ff2, 2, strides=(2, 2), padding='same') (x)
+  x = Concatenate(axis=3)([x, layers[j]])
+  j = j -1 
+  
+  #upsampling 
+  for i in range(0, 5):
+    ff2 = ff2//2
+    f = f // 2 
+    x = Conv2D(f, 3, activation='relu', padding='same') (x)
+    x = Conv2D(f, 3, activation='relu', padding='same') (x)
+    x = Conv2DTranspose(ff2, 2, strides=(2, 2), padding='same') (x)
+    x = Concatenate(axis=3)([x, layers[j]])
+    j = j -1 
+    
+  
+  #classification 
+  x = Conv2D(f, 3, activation='relu', padding='same') (x)
+  x = Conv2D(f, 3, activation='relu', padding='same') (x)
+  outputs = Conv2D(1, 1, activation='sigmoid') (x)
+  
+  #model creation 
+  model = Model(inputs=[inputs], outputs=[outputs])
+  model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = [MeanIoU(num_classes=n_classes+1)]])
+  
+  return model
