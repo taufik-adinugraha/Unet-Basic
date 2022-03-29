@@ -75,8 +75,8 @@ class evaluation_callback(Callback):
         print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('mean_io_u')}, val_MeanIoU={logs.get('val_mean_io_u')}")
         
         # test image
-        fig, ax = plt.subplots(2, 4, figsize=(18,2))
-        for i, image in enumerate(self.images[:8]):
+        fig, ax = plt.subplots(1, 4, figsize=(18,2))
+        for i, image in enumerate(self.images[:4]):
           raw = Image.open(f'images/{image}')
           raw = np.array(raw.resize(self.sz))/255.
           # check the number of channels because some of the images are RGBA or GRAY
