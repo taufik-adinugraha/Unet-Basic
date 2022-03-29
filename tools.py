@@ -50,9 +50,8 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
 # inheritance for training process plot 
 class evaluation_callback(Callback):
 
-    def __init__(self, image_path, model):
+    def __init__(self, image_path):
         self.image_path = image_path
-        self.model = model
 
     def on_train_begin(self, logs=None):
         self.sz = (256,256)
