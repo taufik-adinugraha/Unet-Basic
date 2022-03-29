@@ -70,6 +70,6 @@ def unet(n_classes=1, input_dim=(256, 256, 3)):
     outputs = Conv2D(n_classes, (1, 1), activation='softmax')(c9)
      
     model = Model(inputs=[inputs], outputs=[outputs])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[MeanIoU(num_classes=n_classes+1)])
         
     return model
