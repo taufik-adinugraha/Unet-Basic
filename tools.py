@@ -77,7 +77,7 @@ class evaluation_callback(Callback):
         
         # test image
         fig, ax = plt.subplots(2, 4, figsize=(18,2))
-        for i, image in enumerate(self.images):
+        for i, image in enumerate(self.images[:8]):
           raw = Image.open(f'images/{self.image}')
           raw = np.array(raw.resize(self.sz))/255.
           # check the number of channels because some of the images are RGBA or GRAY
