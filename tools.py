@@ -22,8 +22,9 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
         mask = np.array(mask.resize(sz))
 
         # preprocess the mask 
-        mask[mask >= 2] = 0 
-        mask[mask != 0 ] = 1
+        # mask[mask >= 2] = 0 
+        # mask[mask != 0 ] = 1
+        mask = np.where(mask==1, 1, 0)
         
         batch_y.append(mask)
 
