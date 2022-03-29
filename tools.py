@@ -3,17 +3,16 @@ from PIL import Image
 from tensorflow.keras.callbacks import Callback
 
 
-def image_generator(files, batch_size = 32, sz = (256, 256)):
+def image_generator(files, batch_size=32, sz=(256, 256)):
   
   while True: 
     
-    #extract a random batch 
-    batch = np.random.choice(files, size = batch_size)    
+    # extract a random batch 
+    batch = np.random.choice(files, size=batch_size)    
     
-    #variables for collecting batches of inputs and outputs 
+    # variables for collecting batches of inputs and outputs 
     batch_x = []
     batch_y = []
-    
     
     for f in batch:
 
@@ -21,28 +20,26 @@ def image_generator(files, batch_size = 32, sz = (256, 256)):
         mask = Image.open(f'annotations/trimaps/{f[:-4]}.png')
         mask = np.array(mask.resize(sz))
 
-
-        #preprocess the mask 
+        # preprocess the mask 
         mask[mask >= 2] = 0 
         mask[mask != 0 ] = 1
         
         batch_y.append(mask)
 
-        #preprocess the raw images 
+        # preprocess the raw images 
         raw = Image.open(f'images/{f}')
         raw = raw.resize(sz)
         raw = np.array(raw)
 
-        #check the number of channels because some of the images are RGBA or GRAY
+        # check the number of channels because some of the images are RGBA or GRAY
         if len(raw.shape) == 2:
           raw = np.stack((raw,)*3, axis=-1)
-
         else:
           raw = raw[:,:,0:3]
 
         batch_x.append(raw)
 
-    #preprocess a batch of images and masks 
+    # preprocess a batch of images and masks 
     batch_x = np.array(batch_x)/255.
     batch_y = np.array(batch_y)
     batch_y = np.expand_dims(batch_y,3)
@@ -51,7 +48,7 @@ def image_generator(files, batch_size = 32, sz = (256, 256)):
 
 
 # inheritance for training process plot 
-class PlotLearning(Callback):
+class PlotLearning(Callback, sz=(256,256)):
 
     def on_train_begin(self, logs={}):
         self.i = 0
@@ -60,7 +57,6 @@ class PlotLearning(Callback):
         self.val_losses = []
         self.acc = []
         self.val_acc = []
-        #self.fig = plt.figure()
         self.logs = []
         
     def on_epoch_end(self, epoch, logs={}):
@@ -71,12 +67,13 @@ class PlotLearning(Callback):
         self.acc.append(logs.get('mean_iou'))
         self.val_acc.append(logs.get('val_mean_iou'))
         self.i += 1
-        print('i=',self.i,'loss=',logs.get('loss'),'val_loss=',logs.get('val_loss'),'mean_iou=',logs.get('mean_iou'),'val_mean_iou=',logs.get('val_mean_iou'))
+        print(f'i={self.i}')
+        print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('MeanIoU')}, val_MeanIoU={logs.get('val_MeanIoU')}")
         
         #choose a random test image and preprocess
         path = np.random.choice(test_files)
         raw = Image.open(f'images/{path}')
-        raw = np.array(raw.resize((256, 256)))/255.
+        raw = np.array(raw.resize(sz))/255.
         raw = raw[:,:,0:3]
         
         #predict the mask 
