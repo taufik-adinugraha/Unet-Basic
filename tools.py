@@ -1,5 +1,7 @@
 import numpy as np
 from PIL import Image
+from tensorflow.keras.callbacks import Callback
+
 
 def image_generator(files, batch_size = 32, sz = (256, 256)):
   
@@ -49,7 +51,7 @@ def image_generator(files, batch_size = 32, sz = (256, 256)):
 
 
 # inheritance for training process plot 
-class PlotLearning(keras.callbacks.Callback):
+class PlotLearning(Callback):
 
     def on_train_begin(self, logs={}):
         self.i = 0
