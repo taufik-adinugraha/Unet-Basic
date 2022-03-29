@@ -96,6 +96,6 @@ class evaluation_callback(Callback):
           
           #show the mask and the segmented image 
           combined = np.concatenate([raw, msk, raw* msk], axis = 1)
-          ax[i].set_axis('off')
+          ax[i].set_axis_off()
           ax[i].imshow(combined)
         plt.show()
