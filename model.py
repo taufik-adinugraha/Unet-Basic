@@ -118,6 +118,6 @@ def unet1(n_classes=1, input_dim=(256, 256, 3)):
   
   #model creation 
   model = Model(inputs=[inputs], outputs=[outputs])
-  model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = [MeanIoU(num_classes=n_classes+1)]])
+  model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = [MeanIoU(num_classes=n_classes+1)])
   
   return model
