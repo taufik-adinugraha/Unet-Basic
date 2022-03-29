@@ -1,11 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, Concatenate
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, Concatenate, Dropout
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.utils import plot_model
-from tensorflow.keras.metrics import IoU
+from tensorflow.keras.metrics import MeanIoU
 from tools import *
 
 
@@ -19,7 +17,7 @@ def unet(n_classes=1, input_dim=(256, 256, 3)):
     inputs = Input(input_dim)
     s = inputs
 
-    #Contraction path
+    # Encoder
     c1 = Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(s)
     c1 = Dropout(0.2)(c1)  # Original 0.1
     c1 = Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c1)
@@ -44,7 +42,7 @@ def unet(n_classes=1, input_dim=(256, 256, 3)):
     c5 = Dropout(0.3)(c5)
     c5 = Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c5)
     
-    #Expansive path 
+    # Decoder
     u6 = Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')(c5)
     u6 = concatenate([u6, c4])
     c6 = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u6)
@@ -72,6 +70,6 @@ def unet(n_classes=1, input_dim=(256, 256, 3)):
     outputs = Conv2D(n_classes, (1, 1), activation='softmax')(c9)
      
     model = Model(inputs=[inputs], outputs=[outputs])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[MeanIoU])
         
     return model
