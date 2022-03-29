@@ -51,7 +51,6 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
 class evaluation_callback(Callback):
 
     def __init__(self, image_path):
-        Num.__init__(self, image_path)
         self.image_path = image_path
 
     def on_train_begin(self, logs=None):
