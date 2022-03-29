@@ -80,7 +80,7 @@ def unet1(n_classes=1, input_dim=(256, 256, 3)):
   x = Input(input_dim)
   inputs = x
   
-  #down sampling 
+  # Encoder 
   f = 8
   layers = []
   
@@ -92,7 +92,7 @@ def unet1(n_classes=1, input_dim=(256, 256, 3)):
     f = f*2
   ff2 = 64 
   
-  #bottleneck 
+  # Bottleneck 
   j = len(layers) - 1
   x = Conv2D(f, 3, activation='relu', padding='same') (x)
   x = Conv2D(f, 3, activation='relu', padding='same') (x)
@@ -100,7 +100,7 @@ def unet1(n_classes=1, input_dim=(256, 256, 3)):
   x = Concatenate(axis=3)([x, layers[j]])
   j = j -1 
   
-  #upsampling 
+  # Decoder 
   for i in range(0, 5):
     ff2 = ff2//2
     f = f // 2 
@@ -111,7 +111,7 @@ def unet1(n_classes=1, input_dim=(256, 256, 3)):
     j = j -1 
     
   
-  #classification 
+  # Classification 
   x = Conv2D(f, 3, activation='relu', padding='same') (x)
   x = Conv2D(f, 3, activation='relu', padding='same') (x)
   outputs = Conv2D(1, 1, activation='sigmoid') (x)
