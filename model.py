@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, concatenate, Dropout
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, concatenate, Concatenate, Dropout
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.metrics import MeanIoU
