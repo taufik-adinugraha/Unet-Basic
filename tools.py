@@ -148,8 +148,8 @@ class evaluation_callback(Callback):
           pred = self.model.predict(raw)
           
           #mask post-processing 
-          msk  = pred.squeeze()
-          msk = np.stack((msk,)*3, axis=-1)
+          # msk  = pred.squeeze()
+          # msk = np.stack((msk,)*3, axis=-1)
           msk[msk >= 0.5] = 255
           msk[msk < 0.5] = 0 
           
