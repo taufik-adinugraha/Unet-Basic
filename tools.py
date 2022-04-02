@@ -50,7 +50,7 @@ def image_generator_old(files, batch_size=32, sz=(256, 256)):
 
 
 
-def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
+def image_generator(prep, img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
   
   while True: 
     
@@ -83,6 +83,7 @@ def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
 
     # preprocess a batch of images and masks 
     batch_x = np.array(batch_x)/255.
+    batch_x = prep(batch_x)
     batch_y = np.array(batch_y)
 
     yield (batch_x, batch_y)   
@@ -144,14 +145,13 @@ class evaluation_callback(Callback):
           raw = cv2.resize(raw, self.sz)/255.
           
           #predict the mask 
-          # pred = self.model.predict(np.expand_dims(raw, 0))          
-          pred = self.model.predict(raw)
+          pred = self.model.predict(np.expand_dims(raw, 0))          
           
           #mask post-processing 
-          # msk  = pred.squeeze()
-          # msk = np.stack((msk,)*3, axis=-1)
-          msk[msk >= 0.5] = 255
-          msk[msk < 0.5] = 0 
+          msk  = pred.squeeze()
+          msk = np.stack((msk,)*3, axis=-1)
+          msk[msk >= 0.5] = 1.
+          msk[msk < 0.5] = 0.
           
           #show the mask and the segmented image 
           # combined = np.concatenate([raw, msk, raw* msk], axis = 1)
