@@ -145,12 +145,12 @@ class evaluation_callback(Callback):
           
           #predict the mask 
           # pred = self.model.predict(np.expand_dims(raw, 0))          
-          pred = self.model.predict(raw, 0)
+          pred = self.model.predict(raw)
           
           #mask post-processing 
           msk  = pred.squeeze()
           msk = np.stack((msk,)*3, axis=-1)
-          msk[msk >= 0.5] = 1 
+          msk[msk >= 0.5] = 255
           msk[msk < 0.5] = 0 
           
           #show the mask and the segmented image 
