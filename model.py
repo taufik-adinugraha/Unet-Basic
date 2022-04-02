@@ -1,16 +1,10 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Conv2DTranspose, concatenate, Concatenate, Dropout
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.metrics import MeanIoU
 from tools import *
 
-
-def customCallbacks(path, images):
-  checkpointer = ModelCheckpoint(filepath=f'{path}/unet.h5', verbose=0, save_best_only=True, save_weights_only=True)
-  callbacks = [checkpointer, evaluation_callback(images), EarlyStopping(patience=3)]
-  return callbacks
 
 
 def unet(n_classes=1, input_dim=(256, 256, 3)):
