@@ -83,7 +83,7 @@ def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
 
     # preprocess a batch of images and masks 
     batch_x = np.array(batch_x)/255.
-    batch_y = np.array(batch_y)
+    batch_y = np.array(batch_y)/255.
 
     yield (batch_x, batch_y)   
 
@@ -137,8 +137,8 @@ class evaluation_callback(Callback):
         print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('mean_io_u')}, val_MeanIoU={logs.get('val_mean_io_u')}")
         
         # test image
-        fig, ax = plt.subplots(1, 4, figsize=(18,2))
-        for i, image in enumerate(self.images[:4]):
+        fig, ax = plt.subplots(1, 3, figsize=(18,5))
+        for i, image in enumerate(self.images[:3]):
           raw = cv2.imread(f'train/{image}')
           raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
           raw = cv2.resize(raw, self.sz)/255.
@@ -158,7 +158,8 @@ class evaluation_callback(Callback):
           msk[msk < 0.5] = 0 
           
           #show the mask and the segmented image 
-          combined = np.concatenate([raw, msk, raw* msk], axis = 1)
+          # combined = np.concatenate([raw, msk, raw* msk], axis = 1)
+          combined = np.concatenate([raw, msk], axis = 1)
           ax[i].set_axis_off()
           ax[i].imshow(combined)
         plt.show()
