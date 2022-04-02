@@ -139,7 +139,7 @@ class evaluation_callback(Callback):
         # test image
         fig, ax = plt.subplots(1, 4, figsize=(18,2))
         for i, image in enumerate(self.images[:4]):
-          raw = Image.open(f'images/{image}')
+          raw = cv2.imread(f'train/{image}')
           raw = np.array(raw.resize(self.sz))/255.
           # check the number of channels because some of the images are RGBA or GRAY
           if len(raw.shape) == 2:
