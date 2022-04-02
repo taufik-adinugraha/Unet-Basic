@@ -70,7 +70,7 @@ def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
         mask = cv2.imread(f"{mask_dir}/{f.split('.')[0]}.png")
         mask = cv2.resize(mask, img_size)
         # preprocess the mask 
-        mask = np.where(mask==255, 1., 0)
+        mask = np.where(mask==255, 1., 0.)
 
         # preprocess the raw images 
         img = cv2.imread(f'{img_dir}/{f}')
@@ -130,11 +130,11 @@ class evaluation_callback(Callback):
         self.x.append(self.i)
         self.losses.append(logs.get('loss'))
         self.val_losses.append(logs.get('val_loss'))
-        self.acc.append(logs.get('mean_iou'))
-        self.val_acc.append(logs.get('val_mean_iou'))
+        self.acc.append(logs.get('iou_score'))
+        self.val_acc.append(logs.get('val_iou_score'))
         self.i += 1
         print(f'i={self.i}')
-        print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('mean_io_u')}, val_MeanIoU={logs.get('val_mean_io_u')}")
+        print(f"loss={logs.get('loss')}, val_loss={logs.get('val_loss')}, MeanIoU={logs.get('iou_score')}, val_MeanIoU={logs.get('val_iou_score')}")
         
         # test image
         fig, ax = plt.subplots(1, 3, figsize=(18,5))
@@ -142,14 +142,10 @@ class evaluation_callback(Callback):
           raw = cv2.imread(f'train/{image}')
           raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
           raw = cv2.resize(raw, self.sz)/255.
-          # check the number of channels because some of the images are RGBA or GRAY
-          if len(raw.shape) == 2:
-            raw = np.stack((raw,)*3, axis=-1)
-          else:
-            raw = raw[:,:,0:3]
           
           #predict the mask 
-          pred = self.model.predict(np.expand_dims(raw, 0))
+          # pred = self.model.predict(np.expand_dims(raw, 0))          
+          pred = self.model.predict(raw, 0)
           
           #mask post-processing 
           msk  = pred.squeeze()
