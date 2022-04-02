@@ -4,7 +4,7 @@ from tensorflow.keras.callbacks import Callback
 import matplotlib.pyplot as plt
 
 
-def image_generator(files, batch_size=32, sz=(256, 256)):
+def image_generator_old(files, batch_size=32, sz=(256, 256)):
   
   while True: 
     
@@ -45,6 +45,59 @@ def image_generator(files, batch_size=32, sz=(256, 256)):
     batch_y = np.expand_dims(batch_y,3)
 
     yield (batch_x, batch_y)    
+
+
+
+def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
+  
+  while True: 
+    
+    train_images = [i for i in os.listdir(img_dir) if i.split('.')[-1]=='jpg']
+    masks = [i for i in os.listdir(mask_dir) if i.split('.')[-1]=='png']
+
+    # extract a random batch 
+    batch = np.random.choice(train_images, size=batch_size)    
+    
+    # variables for collecting batches of inputs and outputs 
+    batch_x = []
+    batch_y = []
+    
+    for f in batch:
+
+        #get the masks. Note that masks are png files 
+        mask = cv2.imread(f"{mask_dir}/{f.split('.')[0]}.png")
+        mask = cv2.resize(mask, img_size)
+        # preprocess the mask 
+        mask = np.where(mask==255, 1, 0)
+
+        # preprocess the raw images 
+        img = cv2.imread(f'{img_dir}/{f}')
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        img = cv2.resize(img, img_size)
+
+        # append
+        batch_y.append(mask)
+        batch_x.append(img)
+
+    # preprocess a batch of images and masks 
+    batch_x = np.array(batch_x)/255.
+    batch_y = np.array(batch_y)
+
+    yield (batch_x, batch_y)   
+
+
+# sample images
+def sample_images(image_gen):
+  fig, ax = plt.subplots(5, 3, figsize=(18,15))
+  x, y = next(image_gen)
+  k = 0
+  for i in range(5):
+    for j in range(3):
+      img = x[k]
+      msk = y[k]
+      ax[i,j].axis('off')
+      ax[i,j].imshow(np.concatenate([img, msk], axis = 1))
+      k += 1
 
 
 # inheritance for training process plot 
