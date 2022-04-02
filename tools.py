@@ -140,7 +140,7 @@ class evaluation_callback(Callback):
         fig, ax = plt.subplots(1, 4, figsize=(18,2))
         for i, image in enumerate(self.images[:4]):
           raw = cv2.imread(f'train/{image}')
-          raw = np.array(raw.resize(self.sz))/255.
+          raw = cv2.resize(raw, self.sz)/255.
           # check the number of channels because some of the images are RGBA or GRAY
           if len(raw.shape) == 2:
             raw = np.stack((raw,)*3, axis=-1)
