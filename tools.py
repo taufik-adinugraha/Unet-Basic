@@ -83,7 +83,7 @@ def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
 
     # preprocess a batch of images and masks 
     batch_x = np.array(batch_x)/255.
-    batch_y = np.array(batch_y)/255.
+    batch_y = np.array(batch_y)
 
     yield (batch_x, batch_y)   
 
