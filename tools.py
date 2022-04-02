@@ -70,7 +70,7 @@ def image_generator(img_dir, mask_dir, batch_size=32, img_size=(256, 256)):
         mask = cv2.imread(f"{mask_dir}/{f.split('.')[0]}.png")
         mask = cv2.resize(mask, img_size)
         # preprocess the mask 
-        mask = np.where(mask==255, 1, 0)
+        mask = np.where(mask==255, 1., 0)
 
         # preprocess the raw images 
         img = cv2.imread(f'{img_dir}/{f}')
