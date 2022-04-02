@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
-from tensorflow.keras.callbacks import Callback
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping
 import matplotlib.pyplot as plt
 
 
@@ -100,6 +100,13 @@ def sample_images(image_gen):
       ax[i,j].axis('off')
       ax[i,j].imshow(np.concatenate([img, msk], axis = 1))
       k += 1
+
+
+# callbacks
+def customCallbacks(path, images):
+  checkpointer = ModelCheckpoint(filepath=f'{path}/unet.h5', verbose=0, save_best_only=True, save_weights_only=True)
+  callbacks = [checkpointer, evaluation_callback(images), EarlyStopping(patience=3)]
+  return callbacks
 
 
 # inheritance for training process plot 
