@@ -17,6 +17,7 @@ class pipeline():
     self.img_size = (256, 256)
     self.all_images = [i for i in os.listdir(img_dir) if i.split('.')[-1]=='jpg']
     self.all_masks = [i for i in os.listdir(mask_dir) if i.split('.')[-1]=='png']
+    self.add_callbacks = []
 
   def dataset(self, prep):
     shuffle(self.all_images)
@@ -77,7 +78,7 @@ class pipeline():
     checkpointer = ModelCheckpoint(
         filepath = path, 
         monitor = 'val_loss',
-        save_freq = len(self.train_files) // self.batch_size * 20,
+        save_freq = len(self.train_files) // self.batch_size * 50,
         verbose = 0,
         save_best_only = True, 
         save_weights_only = True
@@ -85,9 +86,9 @@ class pipeline():
     callbacks = [
                  checkpointer, 
                  evaluation_callback(self.img_size, self.img_dir, self.valid_files), 
-                 EarlyStopping(patience=3)
                  ]
-    return callbacks
+    return callbacks + self.add_callbacks
+    
 
   # test
   def test(self, filenames, model):
