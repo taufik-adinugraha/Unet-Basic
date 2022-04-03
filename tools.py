@@ -78,7 +78,7 @@ class pipeline():
     checkpointer = ModelCheckpoint(
         filepath = path, 
         monitor = 'val_loss',
-        save_freq = len(self.train_files) // self.batch_size * 50,
+        save_freq = 100,
         verbose = 0,
         save_best_only = True, 
         save_weights_only = True
