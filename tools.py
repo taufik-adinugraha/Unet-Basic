@@ -77,6 +77,8 @@ class pipeline():
     path = os.path.join(self.store_dir, "unet.h5")
     checkpointer = ModelCheckpoint(
         filepath = path, 
+        monitor = 'val_loss',
+        save_freq = len(self.train_files) // self.batch_size * 20,
         verbose = 0,
         save_best_only = True, 
         save_weights_only = True
@@ -138,9 +140,8 @@ class evaluation_callback(Callback):
         self.val_loss.append(logs.get('val_loss'))
         self.iou.append(logs.get('iou_score'))
         self.val_iou.append(logs.get('val_iou_score'))
-        self.i += 1
         
-        if self.i%10 == 0 | self.i==1 :
+        if self.i%10:
           # test image
           fig, ax = plt.subplots(1, 3, figsize=(18,5))
           for i, image in enumerate(self.files[:3]):
@@ -162,3 +163,5 @@ class evaluation_callback(Callback):
             ax[i].set_axis_off()
             ax[i].imshow(combined)
           plt.show()
+
+        self.i += 1
