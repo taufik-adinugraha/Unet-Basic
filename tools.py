@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping
 import matplotlib.pyplot as plt
+from random import shuffle
 
 class pipeline():
 
