@@ -79,7 +79,7 @@ class pipeline():
         filepath = path, 
         monitor = 'val_loss',
         save_freq = int(100 * len(self.train_files) // self.batch_size),
-        verbose = 0,
+        verbose = 1,
         save_best_only = True, 
         save_weights_only = True
         )
