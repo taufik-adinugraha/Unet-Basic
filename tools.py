@@ -27,7 +27,6 @@ class pipeline():
 
     data = []
     for files in [self.train_files, self.valid_files]:    
-      # variables for collecting batches of inputs and outputs 
       x = []
       y = []
       for f in files:
