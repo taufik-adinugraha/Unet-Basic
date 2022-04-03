@@ -88,7 +88,7 @@ class pipeline():
                  evaluation_callback(self.img_size, self.img_dir, self.valid_files), 
                  ]
     return callbacks + self.add_callbacks
-    
+
 
   # test
   def test(self, filenames, model):
@@ -108,7 +108,7 @@ class pipeline():
       masks.append(msk)
 
     # show the mask and the segmented image 
-    fig, ax = plt.subplots(1, 2, figsize=(18,6))
+    fig, ax = plt.subplots(2, 1, figsize=(18,18))
     for i, (raw, msk) in enumerate(zip(raws,masks)):
       out = np.concatenate([raw, msk], axis = 1)
       ax[i].set_axis_off()
