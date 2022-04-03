@@ -141,7 +141,7 @@ class evaluation_callback(Callback):
         self.iou.append(logs.get('iou_score'))
         self.val_iou.append(logs.get('val_iou_score'))
         
-        if self.i%10:
+        if self.i%10==0:
           # test image
           fig, ax = plt.subplots(1, 3, figsize=(18,5))
           for i, image in enumerate(self.files[:3]):
