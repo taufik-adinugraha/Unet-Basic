@@ -74,17 +74,17 @@ class pipeline():
 
   # callbacks
   def customCallbacks(self):
-    path = os.path.join(self.store_dir, "unet.h5")
+    path = os.path.join(self.store_dir, "checkpoints")
     checkpointer = ModelCheckpoint(
         filepath = path, 
         monitor = 'val_loss',
-        # save_freq = int(100 * len(self.train_files) // self.batch_size),
+        save_freq = int(100 * len(self.train_files) // self.batch_size),
         verbose = 1,
         save_best_only = True, 
         save_weights_only = True
         )
     callbacks = [
-                 checkpointer, 
+                 # checkpointer, 
                  evaluation_callback(self.img_size, self.img_dir, self.valid_files), 
                  ]
     return callbacks + self.add_callbacks
@@ -141,7 +141,7 @@ class evaluation_callback(Callback):
         self.iou.append(logs.get('iou_score'))
         self.val_iou.append(logs.get('val_iou_score'))
         
-        if self.i%10==0:
+        if self.i%100==0:
           # test image
           fig, ax = plt.subplots(1, 3, figsize=(18,5))
           for i, image in enumerate(self.files[:3]):
