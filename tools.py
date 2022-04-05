@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping
 import matplotlib.pyplot as plt
-from random import shuffle
+import random
 
 class pipeline():
 
@@ -12,6 +12,7 @@ class pipeline():
     self.img_dir = img_dir
     self.mask_dir = mask_dir
     self.store_dir = store_dir
+    self.seed = 1234
     self.split = 0.8
     self.batch_size = 16
     self.img_size = (256, 256)
@@ -20,7 +21,8 @@ class pipeline():
     self.add_callbacks = []
 
   def dataset(self, prep):
-    shuffle(self.all_images)
+    random.seed(self.seed)
+    random.shuffle(self.all_images)
     # split into training and testing
     lim = int(self.split * len(self.all_images))
     self.train_files = self.all_images[0:lim]
