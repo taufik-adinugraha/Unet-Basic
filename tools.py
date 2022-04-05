@@ -63,8 +63,6 @@ class pipeline():
     k = 0
     for i in range(5):
       for j in range(3):
-        random.seed(self.seed)
-        random.shuffle(self.all_images)
         f = self.all_images[k]
         img = cv2.imread(os.path.join(self.img_dir, f))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
