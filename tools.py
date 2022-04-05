@@ -153,7 +153,7 @@ class evaluation_callback(Callback):
             raw = cv2.imread(os.path.join(self.img_dir, image))
             raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
             raw = cv2.resize(raw, self.sz) / 255.
-            mask = cv2.imread(os.path.join(self.mask_dir, f"{image.split('.')[0]}.png"))
+            mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
             mask = cv2.resize(mask, self.sz) / 255.
             
             # predict the mask 
