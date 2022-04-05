@@ -146,7 +146,7 @@ class evaluation_callback(Callback):
         
         if self.i%100==0:
           # copy model
-          os.system(f'/content/cp unet.h5 /mydrive/AI/Unet-Chicken')
+          os.system(f'cp /content/unet.h5 /mydrive/AI/Unet-Chicken')
           # test image
           fig, ax = plt.subplots(1, 3, figsize=(18,5))
           for i, image in enumerate(self.files[:3]):
