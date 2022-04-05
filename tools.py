@@ -161,7 +161,7 @@ class evaluation_callback(Callback):
             
             # mask post-processing 
             pred_msk  = pred.squeeze()
-            pred_msk = np.stack((msk,)*3, axis=-1)
+            pred_msk = np.stack((pred_msk,)*3, axis=-1)
             pred_msk[pred_msk >= 0.5] = 1.
             pred_msk[pred_msk < 0.5] = 0.
             
