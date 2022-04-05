@@ -153,18 +153,20 @@ class evaluation_callback(Callback):
             raw = cv2.imread(os.path.join(self.img_dir, image))
             raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
             raw = cv2.resize(raw, self.sz) / 255.
+            mask = cv2.imread(os.path.join(self.mask_dir, f"{image.split('.')[0]}.png"))
+            mask = cv2.resize(mask, self.sz) / 255.
             
             # predict the mask 
             pred = self.model.predict(np.expand_dims(raw, 0))          
             
             # mask post-processing 
-            msk  = pred.squeeze()
-            msk = np.stack((msk,)*3, axis=-1)
-            msk[msk >= 0.5] = 1.
-            msk[msk < 0.5] = 0.
+            pred_msk  = pred.squeeze()
+            pred_msk = np.stack((msk,)*3, axis=-1)
+            pred_msk[pred_msk >= 0.5] = 1.
+            pred_msk[pred_msk < 0.5] = 0.
             
             # show the mask and the segmented image 
-            combined = np.concatenate([raw, msk], axis = 1)
+            combined = np.concatenate([raw, mask, pred_msk], axis = 1)
             ax[i].set_axis_off()
             ax[i].imshow(combined)
           plt.show()
