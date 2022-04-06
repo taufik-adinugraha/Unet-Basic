@@ -159,7 +159,7 @@ class evaluation_callback(Callback):
               mask = cv2.resize(mask, self.sz) / 255.
               
               # predict the mask 
-              raw = prep(raw)
+              raw = self.prep(raw)
               pred = self.model.predict(np.expand_dims(raw, 0))          
               
               # mask post-processing 
