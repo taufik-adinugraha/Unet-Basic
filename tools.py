@@ -21,6 +21,7 @@ class pipeline():
     self.add_callbacks = []
 
   def dataset(self, prep):
+    self.prep = prep
     random.seed(self.seed)
     random.shuffle(self.all_images)
     # split into training and testing
@@ -47,7 +48,7 @@ class pipeline():
         y.append(mask)
       # preprocess a batch of images and masks 
       x = np.array(x) / 255.
-      x = prep(x)
+      x = self.prep(x)
       y = np.array(y)
 
       data.append((x, y))
