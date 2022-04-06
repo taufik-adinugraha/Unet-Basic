@@ -148,7 +148,7 @@ class evaluation_callback(Callback):
         
         if self.i%25==0:
           # test image
-          fig, ax = plt.subplots(2, 3, figsize=(18,8))
+          fig, ax = plt.subplots(2, 3, figsize=(18,4))
           k = 0
           for i in range(2):
             for j in range(3):
