@@ -58,9 +58,9 @@ class pipeline():
 
   # sample images
   def sample_images(self):
-    fig, ax = plt.subplots(5, 3, figsize=(18,8))
+    fig, ax = plt.subplots(7, 3, figsize=(18,12))
     k = 0
-    for i in range(5):
+    for i in range(7):
       for j in range(3):
         f = self.all_images[k]
         img = cv2.imread(os.path.join(self.img_dir, f))
@@ -147,28 +147,34 @@ class evaluation_callback(Callback):
         
         if self.i%25==0:
           # test image
-          fig, ax = plt.subplots(1, 3, figsize=(18,5))
-          for i, image in enumerate(self.files[:3]):
-            raw = cv2.imread(os.path.join(self.img_dir, image))
-            raw = cv2.resize(raw, self.sz) / 255.
-            mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
-            mask = cv2.resize(mask, self.sz) / 255.
-            
-            # predict the mask 
-            raw = prep(raw)
-            pred = self.model.predict(np.expand_dims(raw, 0))          
-            
-            # mask post-processing 
-            pred_msk  = pred.squeeze()
-            pred_msk = np.stack((pred_msk,)*3, axis=-1)
-            pred_msk[pred_msk >= 0.5] = 1.
-            pred_msk[pred_msk < 0.5] = 0.
-            
-            # show the mask and the segmented image 
-            raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
-            combined = np.concatenate([raw, mask, pred_msk], axis = 1)
-            ax[i].set_axis_off()
-            ax[i].imshow(combined)
+          fig, ax = plt.subplots(2, 3, figsize=(18,8))
+          k = 0
+          for i in range(2):
+            for j in range(3):
+              image = self.files[k]
+              raw = cv2.imread(os.path.join(self.img_dir, image))
+              raw = cv2.resize(raw, self.sz) / 255.
+              mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
+              mask = cv2.resize(mask, self.sz) / 255.
+              
+              # predict the mask 
+              raw = prep(raw)
+              pred = self.model.predict(np.expand_dims(raw, 0))          
+              
+              # mask post-processing 
+              pred_msk  = pred.squeeze()
+              pred_msk = np.stack((pred_msk,)*3, axis=-1)
+              pred_msk[pred_msk >= 0.5] = 1.
+              pred_msk[pred_msk < 0.5] = 0.
+              
+              # show the mask and the segmented image 
+              raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
+              combined = np.concatenate([raw, mask, pred_msk], axis = 1)
+              ax[i,j].set_axis_off()
+              ax[i,j].imshow(combined)
+
+              k += 1
+          fig.suptitle(f'Epoch: {self.i}')
           plt.show()
 
         self.i += 1
