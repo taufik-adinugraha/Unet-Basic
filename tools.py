@@ -98,20 +98,20 @@ class pipeline():
     images = [os.path.join(self.store_dir, i) for i in filenames]
     raws, masks = [], []
     for img in images:
-      raw = cv2.imread(img)
-      raw = cv2.resize(raw, self.img_size) / 255.
-      raw = prep(raw)
+      raw_ori = cv2.imread(img)
+      raw_ori = cv2.resize(raw_ori, self.img_size) 
+      raw = raw_ori.copy() / 255.
+      raw = self.prep(raw)
       # predict the mask 
       pred = model.predict(np.expand_dims(raw, 0))
       msk  = pred.squeeze()
       msk = np.stack((msk,)*3, axis=-1)
       msk[msk >= 0.5] = 1.
       msk[msk < 0.5] = 0.
-      raws.append(raw)
+      raws.append(cv2.cvtColor(raw_ori, cv2.COLOR_RGB2BGR)/255.)
       masks.append(msk)
 
     # show the mask and the segmented image 
-    raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
     fig, ax = plt.subplots(len(images), 1, figsize=(18,8*len(images)))
     for i, (raw, msk) in enumerate(zip(raws,masks)):
       out = np.concatenate([raw, msk], axis = 1)
@@ -153,8 +153,9 @@ class evaluation_callback(Callback):
           for i in range(2):
             for j in range(3):
               image = self.files[k]
-              raw = cv2.imread(os.path.join(self.img_dir, image))
-              raw = cv2.resize(raw, self.sz) / 255.
+              raw_ori = cv2.imread(os.path.join(self.img_dir, image))
+              raw_ori = cv2.resize(raw_ori, self.sz) 
+              raw = raw_ori.copy() / 255.
               mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
               mask = cv2.resize(mask, self.sz) / 255.
               
@@ -169,7 +170,7 @@ class evaluation_callback(Callback):
               pred_msk[pred_msk < 0.5] = 0.
               
               # show the mask and the segmented image 
-              raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
+              raw = cv2.cvtColor(raw_ori, cv2.COLOR_RGB2BGR) / 255.
               combined = np.concatenate([raw, mask, pred_msk], axis = 1)
               ax[i,j].set_axis_off()
               ax[i,j].imshow(combined)
