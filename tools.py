@@ -112,7 +112,7 @@ class pipeline():
       masks.append(msk)
 
     # show the mask and the segmented image 
-    fig, ax = plt.subplots(len(images), 1, figsize=(18,8*len(images)))
+    fig, ax = plt.subplots(len(images), 1, figsize=(18,4*len(images)))
     for i, (raw, msk) in enumerate(zip(raws,masks)):
       out = np.concatenate([raw, msk], axis = 1)
       ax[i].set_axis_off()
