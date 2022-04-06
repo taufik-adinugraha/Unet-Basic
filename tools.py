@@ -35,7 +35,6 @@ class pipeline():
       for f in files:
         # preprocess the raw images 
         img = cv2.imread(os.path.join(self.img_dir, f))
-        # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         img = cv2.resize(img, self.img_size)
         # get the masks. Note that masks are png files 
         mask = cv2.imread(os.path.join(self.mask_dir, f"{f.split('.')[0]}.png"))
@@ -76,7 +75,7 @@ class pipeline():
 
   # callbacks
   def customCallbacks(self):
-    # path = os.path.join(self.store_dir, "unet.h5")
+    path = os.path.join(self.store_dir, "unet.h5")
     path = 'unet.h5'
     checkpointer = ModelCheckpoint(
         filepath = path, 
@@ -88,7 +87,7 @@ class pipeline():
         )
     callbacks = [
                  checkpointer, 
-                 evaluation_callback(self.img_size, self.img_dir, self.valid_files), 
+                 evaluation_callback(self.img_size, self.img_dir, self.valid_files, self.prep), 
                  ]
     return callbacks + self.add_callbacks
 
@@ -99,8 +98,8 @@ class pipeline():
     raws, masks = [], []
     for img in images:
       raw = cv2.imread(img)
-      raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
       raw = cv2.resize(raw, self.img_size) / 255.
+      raw = prep(raw)
       # predict the mask 
       pred = model.predict(np.expand_dims(raw, 0))
       msk  = pred.squeeze()
@@ -111,6 +110,7 @@ class pipeline():
       masks.append(msk)
 
     # show the mask and the segmented image 
+    raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
     fig, ax = plt.subplots(len(images), 1, figsize=(18,8*len(images)))
     for i, (raw, msk) in enumerate(zip(raws,masks)):
       out = np.concatenate([raw, msk], axis = 1)
@@ -122,10 +122,11 @@ class pipeline():
 # inheritance for training process plot 
 class evaluation_callback(Callback):
 
-    def __init__(self, img_size, img_dir, files):
+    def __init__(self, img_size, img_dir, files, prep):
         self.sz = img_size
         self.img_dir = img_dir
         self.files = files
+        self.prep = prep
 
     def on_train_begin(self, logs=None):
         self.i = 0
@@ -144,19 +145,17 @@ class evaluation_callback(Callback):
         self.iou.append(logs.get('iou_score'))
         self.val_iou.append(logs.get('val_iou_score'))
         
-        if self.i%100==0:
-          # copy model
-          os.system(f'cp /content/unet.h5 /mydrive/AI/Unet-Chicken')
+        if self.i%25==0:
           # test image
           fig, ax = plt.subplots(1, 3, figsize=(18,5))
           for i, image in enumerate(self.files[:3]):
             raw = cv2.imread(os.path.join(self.img_dir, image))
-            raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
             raw = cv2.resize(raw, self.sz) / 255.
             mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
             mask = cv2.resize(mask, self.sz) / 255.
             
             # predict the mask 
+            raw = prep(raw)
             pred = self.model.predict(np.expand_dims(raw, 0))          
             
             # mask post-processing 
@@ -166,6 +165,7 @@ class evaluation_callback(Callback):
             pred_msk[pred_msk < 0.5] = 0.
             
             # show the mask and the segmented image 
+            raw = cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
             combined = np.concatenate([raw, mask, pred_msk], axis = 1)
             ax[i].set_axis_off()
             ax[i].imshow(combined)
