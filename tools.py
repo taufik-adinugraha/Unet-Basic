@@ -77,7 +77,6 @@ class pipeline():
   # callbacks
   def customCallbacks(self):
     path = os.path.join(self.store_dir, "unet.h5")
-    path = 'unet.h5'
     checkpointer = ModelCheckpoint(
         filepath = path, 
         monitor = 'val_loss',
