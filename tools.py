@@ -8,10 +8,11 @@ import random
 
 class pipeline():
 
-  def __init__(self, img_dir, mask_dir, store_dir):
+  def __init__(self, img_dir, mask_dir, store_dir, prefix):
     self.img_dir = img_dir
     self.mask_dir = mask_dir
     self.store_dir = store_dir
+    self.prefix = prefix
     self.seed = 1234
     self.split = 0.8
     self.batch_size = 16
@@ -76,7 +77,7 @@ class pipeline():
 
   # callbacks
   def customCallbacks(self):
-    path = os.path.join(self.store_dir, "unet.h5")
+    path = os.path.join(self.store_dir, f"unet_{self.prefix}.h5")
     checkpointer = ModelCheckpoint(
         filepath = path, 
         monitor = 'val_loss',
