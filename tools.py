@@ -68,6 +68,7 @@ class pipeline():
         img = cv2.imread(os.path.join(self.img_dir, f))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         msk = cv2.imread(os.path.join(self.mask_dir, f"{f.split('.')[0]}.png"))
+        msk = np.where(msk==255, 255, 0)
         ax[i,j].axis('off')
         ax[i,j].imshow(np.concatenate([img, msk], axis = 1))
         k += 1
@@ -157,6 +158,7 @@ class evaluation_callback(Callback):
               raw_ori = cv2.resize(raw_ori, self.sz) 
               raw = raw_ori.copy() / 255.
               mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
+              mask = np.where(mask==255, 255, 0)
               mask = cv2.resize(mask, self.sz) / 255.
               
               # predict the mask 
