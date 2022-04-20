@@ -158,8 +158,8 @@ class evaluation_callback(Callback):
               raw_ori = cv2.resize(raw_ori, self.sz) 
               raw = raw_ori.copy() / 255.
               mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
-              mask = np.where(mask==255, 255, 0)
               mask = cv2.resize(mask, self.sz) / 255.
+              mask = np.where(mask==1., 1., 0.)
               
               # predict the mask 
               raw = self.prep(raw)
