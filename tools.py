@@ -147,38 +147,38 @@ class evaluation_callback(Callback):
         self.iou.append(logs.get('iou_score'))
         self.val_iou.append(logs.get('val_iou_score'))
         
-        if self.i%25==0:
-          # test image
-          fig, ax = plt.subplots(2, 3, figsize=(18,4))
-          k = 0
-          for i in range(2):
-            for j in range(3):
-              image = self.files[k]
-              raw_ori = cv2.imread(os.path.join(self.img_dir, image))
-              raw_ori = cv2.resize(raw_ori, self.sz) 
-              raw = raw_ori.copy() / 255.
-              mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
-              mask = cv2.resize(mask, self.sz) / 255.
-              mask = np.where(mask==1., 1., 0.)
+        # if self.i%25==0:
+        #   # test image
+        #   fig, ax = plt.subplots(2, 3, figsize=(18,4))
+        #   k = 0
+        #   for i in range(2):
+        #     for j in range(3):
+        #       image = self.files[k]
+        #       raw_ori = cv2.imread(os.path.join(self.img_dir, image))
+        #       raw_ori = cv2.resize(raw_ori, self.sz) 
+        #       raw = raw_ori.copy() / 255.
+        #       mask = cv2.imread(os.path.join(self.img_dir, 'segmentation', f"{image.split('.')[0]}.png"))
+        #       mask = cv2.resize(mask, self.sz) / 255.
+        #       mask = np.where(mask==1., 1., 0.)
               
-              # predict the mask 
-              raw = self.prep(raw)
-              pred = self.model.predict(np.expand_dims(raw, 0))          
+        #       # predict the mask 
+        #       raw = self.prep(raw)
+        #       pred = self.model.predict(np.expand_dims(raw, 0))          
               
-              # mask post-processing 
-              pred_msk  = pred.squeeze()
-              pred_msk = np.stack((pred_msk,)*3, axis=-1)
-              pred_msk[pred_msk >= 0.5] = 1.
-              pred_msk[pred_msk < 0.5] = 0.
+        #       # mask post-processing 
+        #       pred_msk  = pred.squeeze()
+        #       pred_msk = np.stack((pred_msk,)*3, axis=-1)
+        #       pred_msk[pred_msk >= 0.5] = 1.
+        #       pred_msk[pred_msk < 0.5] = 0.
               
-              # show the mask and the segmented image 
-              raw = cv2.cvtColor(raw_ori, cv2.COLOR_RGB2BGR) / 255.
-              combined = np.concatenate([raw, mask, pred_msk], axis = 1)
-              ax[i,j].set_axis_off()
-              ax[i,j].imshow(combined)
+        #       # show the mask and the segmented image 
+        #       raw = cv2.cvtColor(raw_ori, cv2.COLOR_RGB2BGR) / 255.
+        #       combined = np.concatenate([raw, mask, pred_msk], axis = 1)
+        #       ax[i,j].set_axis_off()
+        #       ax[i,j].imshow(combined)
 
-              k += 1
-          fig.suptitle(f'Epoch: {self.i}')
-          plt.show()
+        #       k += 1
+        #   fig.suptitle(f'Epoch: {self.i}')
+        #   plt.show()
 
         self.i += 1
