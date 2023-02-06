@@ -18,7 +18,7 @@ class pipeline():
     self.batch_size = 16
     self.img_size = (256, 256)
     self.all_images = [i for i in os.listdir(img_dir) if i.split('.')[-1]=='jpg']
-    self.all_masks = [i for i in os.listdir(mask_dir) if i.split('.')[-1]=='png']
+    self.all_masks = [f'{i.split('.')[0]}.png' for i in self.all_images]
     self.add_callbacks = []
 
   def dataset(self, prep):
