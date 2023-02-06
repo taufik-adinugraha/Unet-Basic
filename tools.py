@@ -35,6 +35,7 @@ class pipeline():
       x = []
       y = []
       for f in files:
+        print(f)
         # preprocess the raw images 
         img = cv2.imread(os.path.join(self.img_dir, f))
         img = cv2.resize(img, self.img_size)
