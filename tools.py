@@ -27,11 +27,15 @@ class pipeline():
     random.shuffle(self.all_images)
     # split into training and testing
     lim = int(self.split * len(self.all_images))
-    self.train_files = self.all_images[0:lim]
-    self.valid_files = self.all_images[lim:]
-
+    train_image_files = self.all_images[0:lim]
+    valid_image_files = self.all_images[lim:]
+    train_mask_files = self.all_masks[0:lim]
+    valid_mask_files = self.all_masks[lim:]
+    self.train_files = (train_image_files, train_mask_files)
+    self.valid_files = (valid_image_files, valid_mask_files)
+    
     data = []
-    for files in [self.train_files, self.valid_files]:    
+    for (file_images, file_masks) in [self.train_files, self.valid_files]:    
       x = []
       y = []
       for (file_img, file_msk) in zip(file_images, file_masks):
