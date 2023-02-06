@@ -64,8 +64,6 @@ class pipeline():
     for i in range(7):
       for j in range(3):
         (img, msk)  = self.all_images[k]
-        print(img)
-        print(msk)
         img = cv2.imread(os.path.join(self.img_dir, img))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         msk = cv2.imread(os.path.join(self.mask_dir, msk))
