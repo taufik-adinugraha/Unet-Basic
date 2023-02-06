@@ -25,11 +25,11 @@ class pipeline():
     self.prep = prep
     random.seed(self.seed)
     random.shuffle(self.all_images)
-    # split into training and testing
+    # split into training and validation
     lim = int(self.split * len(self.all_images))
     train_image_files = self.all_images[0:lim]
-    valid_image_files = self.all_images[lim:]
     train_mask_files = self.all_masks[0:lim]
+    valid_image_files = self.all_images[lim:]
     valid_mask_files = self.all_masks[lim:]
     self.train_files = (train_image_files, train_mask_files)
     self.valid_files = (valid_image_files, valid_mask_files)
@@ -69,9 +69,10 @@ class pipeline():
     for i in range(7):
       for j in range(3):
         f = self.all_images[k]
+        m = self.all_masks[k]
         img = cv2.imread(os.path.join(self.img_dir, f))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        msk = cv2.imread(os.path.join(self.mask_dir, f"{f.split('.')[0]}.png"))
+        msk = cv2.imread(os.path.join(self.mask_dir, m))
         msk = np.where(msk==255, 255, 0)
         ax[i,j].axis('off')
         ax[i,j].imshow(np.concatenate([img, msk], axis = 1))
