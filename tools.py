@@ -17,8 +17,7 @@ class pipeline():
     self.split = 0.8
     self.batch_size = 16
     self.img_size = (256, 256)
-    self.all_images = [i for i in os.listdir(img_dir) if i.split('.')[-1]=='jpg']
-    self.all_masks = [f"{i.split('.')[0]}.png" for i in self.all_images]
+    self.all_images = [(i,f"{i.split('.')[0]}.png") for i in os.listdir(img_dir) if i.split('.')[-1]=='jpg']
     self.add_callbacks = []
 
   def dataset(self, prep):
@@ -27,18 +26,14 @@ class pipeline():
     random.shuffle(self.all_images)
     # split into training and validation
     lim = int(self.split * len(self.all_images))
-    train_image_files = self.all_images[0:lim]
-    train_mask_files = self.all_masks[0:lim]
-    valid_image_files = self.all_images[lim:]
-    valid_mask_files = self.all_masks[lim:]
-    self.train_files = (train_image_files, train_mask_files)
-    self.valid_files = (valid_image_files, valid_mask_files)
+    self.train_files = self.all_images[0:lim]
+    self.valid_files = self.all_images[lim:]
     
     data = []
-    for (file_images, file_masks) in [self.train_files, self.valid_files]:    
+    for files in [self.train_files, self.valid_files]:   
       x = []
       y = []
-      for (file_img, file_msk) in zip(file_images, file_masks):
+      for (file_img, file_msk) in files:
         # preprocess the raw images 
         img = cv2.imread(os.path.join(self.img_dir, file_img))
         img = cv2.resize(img, self.img_size)
@@ -68,11 +63,12 @@ class pipeline():
     k = 0
     for i in range(7):
       for j in range(3):
-        f = self.all_images[k]
-        m = self.all_masks[k]
-        img = cv2.imread(os.path.join(self.img_dir, f))
+        (img, msk)  = self.all_images[k]
+        print(img)
+        print(msk)
+        img = cv2.imread(os.path.join(self.img_dir, img))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        msk = cv2.imread(os.path.join(self.mask_dir, m))
+        msk = cv2.imread(os.path.join(self.mask_dir, msk))
         msk = np.where(msk==255, 255, 0)
         ax[i,j].axis('off')
         ax[i,j].imshow(np.concatenate([img, msk], axis = 1))
