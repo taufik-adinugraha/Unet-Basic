@@ -34,13 +34,12 @@ class pipeline():
     for files in [self.train_files, self.valid_files]:    
       x = []
       y = []
-      for f in files:
-        print(f)
+      for (file_img, file_msk) in zip(file_images, file_masks):
         # preprocess the raw images 
-        img = cv2.imread(os.path.join(self.img_dir, f))
+        img = cv2.imread(os.path.join(self.img_dir, file_img))
         img = cv2.resize(img, self.img_size)
         # get the masks. Note that masks are png files 
-        mask = cv2.imread(os.path.join(self.mask_dir, f"{f.split('.')[0]}.png"))
+        mask = cv2.imread(os.path.join(self.mask_dir, file_msk)
         mask = cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY)
         mask = cv2.resize(mask, self.img_size)
         # preprocess the mask 
